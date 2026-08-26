@@ -1,6 +1,6 @@
 #lang rhombus
 
-import lib("rhombus-ugraph-executor") open
+import lib("rhombus-graph-executor") open
 
 class JugState(left, right)
 

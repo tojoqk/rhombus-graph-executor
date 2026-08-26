@@ -10,7 +10,7 @@ Rhombus bindings for [graph-executor](https://github.com/tojoqk/graph-executor).
 ```rhombus
 #lang rhombus
 
-import lib("rhombus-ugraph-executor") open
+import lib("rhombus-graph-executor") open
 
 class JugState(left, right)
 
