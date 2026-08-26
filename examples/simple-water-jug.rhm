@@ -60,7 +60,7 @@ fun jug_graph(g, left_cap, right_cap, target):
            What will you do?}
   def make_node = node_maker(g)
   def playing = make_node("Playing", ~type: #'puzzle, ~prompt: code(prompt_playing))
-  def check_clear = make_node("Check_Clear Clear", ~type: #'check_clear)
+  def check_clear = make_node("Check Clear", ~type: #'check_clear)
   def cleared = make_node("Cleared!", ~type: #'terminal, ~trans: code(show_cleared))
 
   def edges = [
