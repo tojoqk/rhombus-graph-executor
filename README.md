@@ -18,50 +18,13 @@ fun jug_graph(g, left_cap, right_cap, target):
   when left_cap == right_cap
   | error(@str{jug_graph: must not be same caps (@left_cap, @right_cap)})
 
-  fun show_cleared(JugState(_, _) as st):
-    message(@str{Congratulations! You made exactly @target gallons!})
-    st
-
-  fun fill_left(JugState(_, right)):
-    message(@str{Filled the @(left_cap)-gallon jug.})
-    JugState(left_cap, right)
-
-  fun fill_right(JugState(left, _)):
-    message(@str{Filled the @(right_cap)-gallon jug.})
-    JugState(left, right_cap)
-
-  fun empty_left(JugState(_, right)):
-    message(@str{Emptied the @(left_cap)-gallon jug.})
-    JugState(0, right)
-
-  fun empty_right(JugState(left, _)):
-    message(@str{Emptied the @(right_cap)-gallon jug.})
-    JugState(left, 0)
-
-  fun pour_left_to_right(JugState(left, right)):
+  fun pour_left_to_right_message(JugState(left, right)):
     def amount = math.min(left, right_cap - right)
-    def new_left = left - amount
-    def new_right = right + amount
     message(@str{Poured @amount gallons from @(left_cap)G to @(right_cap)G})
-    JugState(new_left, new_right)
 
-  fun pour_right_to_left(JugState(left, right)):
+  fun pour_right_to_left_message(JugState(left, right)):
     def amount = math.min(right, left_cap - left)
-    def new_right = right - amount
-    def new_left = left + amount
     message(@str{Poured @amount gallons from @(right_cap)G to @(left_cap)G})
-    JugState(new_left, new_right)
-
-  fun can_fill_right(JugState(_, right)): right < right_cap
-  fun can_fill_left(JugState(left, _)): left < left_cap
-  fun can_empty_right(JugState(_, right)): right > 0
-  fun can_empty_left(JugState(left, _)): left > 0
-
-  fun can_pour_right_to_left(JugState(left, right)): right > 0 && left < left_cap
-  fun can_pour_left_to_right(JugState(left, right)): left > 0 && right < right_cap
-
-  fun is_cleared(JugState(left, right)): left == target || right == target
-  fun not_cleared(st): !is_cleared(st)
 
   fun prompt_playing(JugState(left, right)):
     @str{Goal: Make exactly @(target)G
@@ -71,17 +34,62 @@ fun jug_graph(g, left_cap, right_cap, target):
   def make_node = node_maker(g)
   def playing = make_node("Playing", ~type: #'puzzle, ~prompt: code(prompt_playing))
   def check_clear = make_node("Check Clear", ~type: #'check_clear)
-  def cleared = make_node("Cleared!", ~type: #'terminal, ~trans: code(show_cleared))
+  def cleared = make_node("Cleared!", ~type: #'terminal,
+                          ~before: code(fun (_): message(@str{Congratulations! You made exactly @target gallons!})))
 
   def edges = [
-    make_edge(@str{Fill @(left_cap)G}, ~from: playing, ~to: check_clear, ~when: code(can_fill_left), ~trans: code(fill_left)),
-    make_edge(@str{Fill @(right_cap)G}, ~from: playing, ~to: check_clear, ~when: code(can_fill_right), ~trans: code(fill_right)),
-    make_edge(@str{Empty @(left_cap)G}, ~from: playing, ~to: check_clear, ~when: code(can_empty_left), ~trans: code(empty_left)),
-    make_edge(@str{Empty @(right_cap)G}, ~from: playing, ~to: check_clear, ~when: code(can_empty_right), ~trans: code(empty_right)),
-    make_edge(@str{Pour @(left_cap)G -> @(right_cap)G}, ~from: playing, ~to: check_clear, ~when: code(can_pour_left_to_right), ~trans: code(pour_left_to_right)),
-    make_edge(@str{Pour @(right_cap)G -> @(left_cap)G}, ~from: playing, ~to: check_clear, ~when: code(can_pour_right_to_left), ~trans: code(pour_right_to_left)),
-    make_edge("Not yet", ~mode: #'auto, ~from: check_clear, ~to: playing, ~when: code(not_cleared)),
-    make_edge("Clear!",  ~mode: #'auto, ~from: check_clear, ~to: cleared, ~when: code(is_cleared))
+    make_edge(
+      @str{Fill @(left_cap)G}, ~from: playing, ~to: check_clear,
+      ~when: code(fun (JugState(left, _)): left < left_cap),
+      ~trans: code(fun (JugState(_, right)): JugState(left_cap, right)),
+      ~before: code(fun (_): message(@str{Filled the @(left_cap)-gallon jug.})),
+    ),
+    make_edge(
+      @str{Fill @(right_cap)G}, ~from: playing, ~to: check_clear,
+      ~when: code(fun (JugState(_, right)): right < right_cap),
+      ~trans: code(fun (JugState(left, _)): JugState(left, right_cap)),
+      ~before: code(fun (_): message(@str{Filled the @(right_cap)-gallon jug.})),
+    ),
+    make_edge(
+      @str{Empty @(left_cap)G}, ~from: playing, ~to: check_clear,
+      ~when: code(fun (JugState(left, _)): 0 < left),
+      ~trans: code(fun (JugState(_, right)): JugState(0, right)),
+      ~before: code(fun (_): message(@str{Emptied the @(left_cap)-gallon jug.})),
+    ),
+    make_edge(
+      @str{Empty @(right_cap)G}, ~from: playing, ~to: check_clear,
+      ~when: code(fun (JugState(_, right)): right > 0),
+      ~trans: code(fun (JugState(left, _)): JugState(left, 0)),
+      ~before: code(fun (_): message(@str{Emptied the @(right_cap)-gallon jug.})),
+    ),
+    make_edge(
+      @str{Pour @(left_cap)G -> @(right_cap)G}, ~from: playing, ~to: check_clear,
+      ~when: code(fun (JugState(left, right)): left > 0 && right < right_cap),
+      ~trans: code(
+                fun (JugState(left, right)):
+                  def amount = math.min(left, right_cap - right)
+                  JugState(left - amount, right + amount)
+              ),
+      ~before: code(pour_left_to_right_message),
+    ),
+    make_edge(
+      @str{Pour @(right_cap)G -> @(left_cap)G}, ~from: playing, ~to: check_clear,
+      ~when: code(fun (JugState(left, right)): right > 0 && left < left_cap),
+      ~trans: code(
+                fun (JugState(left, right)):
+                  def amount = math.min(right, left_cap - left)
+                  JugState(left + amount, right - amount)
+              ),
+      ~before: code(pour_right_to_left_message),
+    ),
+    make_edge(
+      "Not yet", ~mode: #'auto, ~from: check_clear, ~to: playing,
+      ~when: code(fun (JugState(left, right)): left != target && right != target),
+    ),
+    make_edge(
+      "Clear!", ~mode: #'auto, ~from: check_clear, ~to: cleared,
+      ~when: code(fun (JugState(left, right)): left == target || right == target),
+    ),
   ]
 
   values(make_graph(g, ~edges), playing)
@@ -113,7 +121,9 @@ module main:
   def trace_display = #'hide
   match options[#'mode]
   | #'dot:
-      render_dot(m)
+      def global = dot_global_config(~rankdir: #'LR)
+      def config = dot_config(~global)
+      render_dot(m, ~config)
   | #'console:
       def commands = [[#'quit, #'q, "Quit"]]
       def config = console_config(~commands, ~trace_display)
@@ -132,12 +142,32 @@ module main:
 module test:
   def m = make_model(3, 5, 4)
   fun is_terminal_node(x): node_info_type(x) == #'terminal
+  def invariant = fun (_, JugState(l, r)): 0 <= l && l <= 3 && 0 <= r && r <= 5
+  def is_goal = fun (n, _): is_terminal_node(n)
   check:
     find_livelock(m) ~is #false
     find_deadlock(m, is_terminal_node) ~is #false
     find_false_terminal(m, is_terminal_node) ~is #false
     find_auto_conflict(m) ~is #false
-    find_counterexample(m, fun (n, st): st.left >= 0 && st.left <= 3) ~is #false
+    find_counterexample(m, invariant) ~is #false
+    find_witness(m, is_goal) ~is PairList[
+      PairList[#'auto, PairList["Clear!"]],
+      PairList[#'choose, PairList["Pour 5G -> 3G"]],
+      PairList[#'auto, PairList["Not yet"]],
+      PairList[#'choose, PairList["Fill 5G"]],
+      PairList[#'auto, PairList["Not yet"]],
+      PairList[#'choose, PairList["Pour 5G -> 3G"]],
+      PairList[#'auto, PairList["Not yet"]],
+      PairList[#'choose, PairList["Empty 3G"]],
+      PairList[#'auto, PairList["Not yet"]],
+      PairList[#'choose, PairList["Pour 5G -> 3G"]],
+      PairList[#'auto, PairList["Not yet"]],
+      PairList[#'choose, PairList["Empty 3G"]],
+      PairList[#'auto, PairList["Not yet"]],
+      PairList[#'choose, PairList["Fill 5G"]],
+      PairList[#'auto, PairList["Not yet"]],
+      PairList[#'choose, PairList["Fill 3G"]],
+    ]
 ```
 
 ## License
