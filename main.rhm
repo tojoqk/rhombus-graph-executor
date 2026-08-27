@@ -16,8 +16,8 @@ fun model(proc, ~default_node_prompt = "Choose:"):
     values(PairList(&gs), n, st)
   main.model(f, ~#{default-node-prompt}: default_node_prompt)
 
-fun make_edge(name, ~mode = #false, ~is_half = #false, ~from, ~to, ~desc = #false, ~when: w = #false, ~trans = #false, ~priority = #false, ~options = []):
-  main.#{make-edge}(name, ~mode, ~#{half?}: is_half, ~from, ~to, ~desc, ~when: w, ~trans, ~priority, ~options: PairList(&options))
+fun make_edge(name, ~mode = #false, ~is_half = #false, ~from, ~to, ~desc = #false, ~when: w = #false, ~trans = #false, ~before = #false, ~after = #false, ~priority = #false, ~options = []):
+  main.#{make-edge}(name, ~mode, ~#{half?}: is_half, ~from, ~to, ~desc, ~when: w, ~trans, ~before, ~after, ~priority, ~options: PairList(&options))
 
 fun checker_config(~prompt = checker_prompt_config(), ~trace_display = #'hide):
   main.#{checker-config}(~prompt, ~#{trace-display}: trace_display)
