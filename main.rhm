@@ -75,6 +75,7 @@ export:
     main.#{prompt-info-tags} as prompt_info_tags
     main.#{console-run} as console_run
     main.#{find-counterexample} as find_counterexample
+    main.#{find-witness} as find_witness
     main.#{find-deadlock} as find_deadlock
     main.#{find-false-terminal} as  find_false_terminal
     main.#{find-auto-conflict} as find_auto_conflict
