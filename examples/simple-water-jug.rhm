@@ -1,5 +1,4 @@
-#lang rhombus
-use_static
+#lang rhombus/static
 
 import lib("rhombus-graph-executor") open
 

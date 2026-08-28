@@ -1,4 +1,4 @@
-#lang rhombus
+#lang rhombus/static
 
 import lib("graph-executor/main.rkt") as main
 import lib("graph-executor/graph.rkt") as g
@@ -36,10 +36,10 @@ fun checker_prompt_config(~string_values = main.#{default-checker-prompt-string-
                                 ~#{between-values}: between_values,
                                 ~#{random-values}: random_values)
 
-fun console_config(~commands = main.#{default-console-commands},
+fun console_config(~commands: commands :: Sequence = main.#{default-console-commands},
                    ~trace_display = #'show,
                    ~chooser = main.#{default-console-chooser}):
-  main.#{console-config}(~commands: PairList(&commands.map(fun (x): PairList(&x))),
+  main.#{console-config}(~commands: for PairList (cmd: commands): PairList(&cmd),
                          ~#{trace-display}: trace_display,
                          ~chooser)
 
