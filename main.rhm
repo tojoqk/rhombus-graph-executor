@@ -9,7 +9,7 @@ import:
     open
 
 expr.macro 'code($e)':
-  'main.#{make-code}(main.#{code-text}($(e.to_source_string())), $e)'
+  'g.#{make-code}(g.#{code-text}($(e.to_source_string())), $e)'
 
 fun model(proc, ~default_node_prompt = "Choose:"):
   def f = fun():
