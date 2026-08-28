@@ -9,10 +9,11 @@ Rhombus bindings for [graph-executor](https://github.com/tojoqk/graph-executor).
 
 ```rhombus
 #lang rhombus
+use_static
 
 import lib("rhombus-graph-executor") open
 
-class JugState(left, right)
+class JugState(left :: Nat, right :: Nat)
 
 fun jug_graph(g, left_cap, right_cap, target):
   when left_cap == right_cap
@@ -135,7 +136,7 @@ module main:
   | #'random:
       def chooser = fun (_): #'random
       def config = console_config(~chooser, ~trace_display)
-      def j = console_run(m, ~config)
+      def j :: PairList.of(PairList) = console_run(m, ~config)
       def steps = for values(cnt = 0) (e in j):
         if e[0] == #'choose
         | cnt + 1
