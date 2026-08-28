@@ -2,7 +2,6 @@
 
 import lib("graph-executor/main.rkt") as main
 import lib("graph-executor/graph.rkt") as g
-import lib("graph-executor/prompt.rkt") as pmt
 
 import:
   rhombus/meta:
@@ -70,7 +69,13 @@ export:
 
   rename:
     main.message as message
-    pmt.#{prompt/untyped} as prompt
+    main.#{prompt-choose} as prompt_choose
+    main.#{prompt-string} as prompt_string
+    main.#{prompt-integer} as prompt_integer
+    main.#{prompt-natural} as prompt_natural
+    main.#{prompt-positive-integer} as prompt_positive_integer
+    main.#{prompt-between} as prompt_between
+    main.#{prompt-random} as prompt_random
     main.#{node-maker} as node_maker
     main.#{apply-journal} as apply_journal
     main.#{weight-edge-option} as weight_edge_option
