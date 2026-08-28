@@ -8,8 +8,7 @@ Rhombus bindings for [graph-executor](https://github.com/tojoqk/graph-executor).
 ![Water Jug Graph](examples/simple-water-jug.svg)
 
 ```rhombus
-#lang rhombus
-use_static
+#lang rhombus/static
 
 import lib("rhombus-graph-executor") open
 
