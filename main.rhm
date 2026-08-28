@@ -71,21 +71,11 @@ export:
   rename:
     main.message as message
     pmt.#{prompt/untyped} as prompt
-    main.#{make-code} as make_code
     main.#{node-maker} as node_maker
-    main.#{code-sexp} as code_sexp
-    main.#{code-sexp?} as is_code_sexp
-    main.#{code-sexp-sexp} as code_sexp_sexp
-    main.#{code-text} as code_text
-    main.#{code-text?} as is_code_text
-    main.#{code-text-text} as code_text_text
-    main.#{node-graph-name} as node_graph_name
     main.#{apply-journal} as apply_journal
     main.#{weight-edge-option} as weight_edge_option
     main.#{default-console-commands} as default_console_commands
     main.#{default-console-chooser} as default_console_chooser
-    main.#{journal?} as is_journal
-    main.#{prompt-info-tags} as prompt_info_tags
     main.#{console-run} as console_run
     main.#{find-counterexample} as find_counterexample
     main.#{find-witness} as find_witness
@@ -99,17 +89,6 @@ export:
     main.#{default-checker-prompt-positive-integer-values} as default_checker_prompt_positive_integer_values
     main.#{default-checker-prompt-between-values} as default_checker_prompt_between_values
     main.#{default-checker-prompt-random-values} as default_checker_prompt_random_values
-    main.#{dot-node-name} as dot_node_name
-    main.#{dot-node-desc} as dot_node_desc
-    main.#{dot-node-type} as dot_node_type
-    main.#{dot-node-prompt} as dot_node_prompt
-    main.#{dot-node-trans} as dot_node_trans
-    main.#{dot-edge-name} as dot_edge_name
-    main.#{dot-edge-desc} as dot_edge_desc
-    main.#{dot-edge-from} as dot_edge_from
-    main.#{dot-edge-to} as dot_edge_to
-    main.#{dot-edge-when} as dot_edge_when
-    main.#{dot-edge-trans} as dot_edge_trans
     main.#{render-dot} as render_dot
     main.#{dot-global-config} as dot_global_config
     main.#{dot-node-config} as dot_node_config
