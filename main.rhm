@@ -1,6 +1,7 @@
 #lang rhombus
 
 import lib("graph-executor/main.rkt") as main
+import lib("graph-executor/graph.rkt") as g
 import lib("graph-executor/prompt.rkt") as pmt
 
 import:
@@ -48,7 +49,23 @@ fun make_graph(name, ~parent_name = #false, ~desc = #false, ~edges):
 fun dot_config(~global = #false, ~node = #false, ~node_label = #false, ~edge_node = #false, ~edge_node_label = #false, ~edge = #false):
   main.#{dot-config}(~global, ~node, ~#{node-label}: node_label, ~#{edge-node}: edge_node, ~#{edge-node-label}: edge_node_label, ~edge)
 
+dot.macro 'node_info_dot $left . $right':
+  match right
+  | 'name': 'g.#{node-info-name}($left)'
+  | 'type': 'g.#{node-info-type}($left)'
+  | 'tags': 'g.#{node-info-tags}($left)'
+  | 'desc': 'g.#{node-info-desc}($left)'
+
+annot.macro 'NodeInfo':
+  annot_meta.pack_predicate(
+    'g.#{node-info?}',
+    '(($statinfo_meta.dot_provider_key, node_info_dot))'
+  )
+
 export:
+  NodeInfo
+  node_info_dot
+
   code model make_edge make_graph checker_config checker_prompt_config console_config dot_config
 
   rename:
@@ -63,10 +80,6 @@ export:
     main.#{code-text?} as is_code_text
     main.#{code-text-text} as code_text_text
     main.#{node-graph-name} as node_graph_name
-    main.#{node-info-name} as node_info_name
-    main.#{node-info-type} as node_info_type
-    main.#{node-info-tags} as node_info_tags
-    main.#{node-info-desc} as node_info_desc
     main.#{apply-journal} as apply_journal
     main.#{weight-edge-option} as weight_edge_option
     main.#{default-console-commands} as default_console_commands
