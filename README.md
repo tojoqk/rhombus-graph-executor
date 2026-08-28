@@ -34,8 +34,10 @@ fun jug_graph(g, left_cap, right_cap, target):
   def make_node = node_maker(g)
   def playing = make_node("Playing", ~type: #'puzzle, ~prompt: code(prompt_playing))
   def check_clear = make_node("Check Clear", ~type: #'check_clear)
-  def cleared = make_node("Cleared!", ~type: #'terminal,
-                          ~before: code(fun (_): message(@str{Congratulations! You made exactly @target gallons!})))
+  def cleared = make_node(
+    "Cleared!", ~type: #'terminal,
+    ~before: code(fun (_): message(@str{Congratulations! You made exactly @target gallons!})),
+  )
 
   def edges = [
     make_edge(
@@ -95,10 +97,11 @@ fun jug_graph(g, left_cap, right_cap, target):
   values(make_graph(g, ~edges), playing)
 
 fun make_model(left_cap, right_cap, target):
-  def proc = fun ():
-    def values(graph, node_init) = jug_graph("Water Jug Puzzle", left_cap, right_cap, target)
-    values([graph], node_init, JugState(0, 0))
-  model(proc)
+  model(
+    fun ():
+      def values(graph, node_init) = jug_graph("Water Jug Puzzle", left_cap, right_cap, target)
+      values([graph], node_init, JugState(0, 0))
+  )
 
 module main:
   import rhombus/cmdline open
