@@ -48,7 +48,7 @@ fun make_graph(name, ~parent_name = #false, ~desc = #false, ~edges):
 fun dot_config(~global = #false, ~node = #false, ~node_label = #false, ~edge_node = #false, ~edge_node_label = #false, ~edge = #false):
   main.#{dot-config}(~global, ~node, ~#{node-label}: node_label, ~#{edge-node}: edge_node, ~#{edge-node-label}: edge_node_label, ~edge)
 
-dot.macro 'node_info_dot $left . $right':
+dot.macro 'node_info_dot_provider $left . $right':
   match right
   | 'name': 'g.#{node-info-name}($left)'
   | 'type': 'g.#{node-info-type}($left)'
@@ -58,12 +58,31 @@ dot.macro 'node_info_dot $left . $right':
 annot.macro 'NodeInfo':
   annot_meta.pack_predicate(
     'g.#{node-info?}',
-    '(($statinfo_meta.dot_provider_key, node_info_dot))'
+    '(($statinfo_meta.dot_provider_key, node_info_dot_provider))'
   )
 
+dot.macro 'journal_entry_dot_provider $left . $right':
+  match right
+  | 'edge_mode': 'main.#{journal-entry-edge-mode}($left)'
+  | 'edge_name': 'main.#{journal-entry-edge-name}($left)'
+  | 'edge_attributes': 'main.#{journal-entry-edge-attributes}($left)'
+  | 'prompt_records': 'main.#{journal-entry-prompt-records}($left)'
+
+annot.macro 'JournalEntry':
+  annot_meta.pack_predicate(
+    'main.#{journal-entry?}',
+    '(($statinfo_meta.dot_provider_key, journal_entry_dot_provider))'
+  )
+
+fun JournalEntry(edge_mode, edge_name, ~edge_attributes = [], ~prompt_records = []):
+  PairList[edge_mode, PairList[edge_name, &edge_attributes], &prompt_records]
+
+annot Journal = PairList.of(JournalEntry)
+def Journal = PairList
+
 export:
-  NodeInfo
-  node_info_dot
+  NodeInfo node_info_dot_provider
+  Journal JournalEntry journal_entry_dot_provider
 
   code model make_edge make_graph checker_config checker_prompt_config console_config dot_config
 

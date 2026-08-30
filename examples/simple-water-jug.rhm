@@ -125,9 +125,9 @@ module main:
   | #'random:
       def chooser = fun (_): #'random
       def config = console_config(~chooser, ~trace_display)
-      def j :: PairList.of(PairList) = console_run(m, ~config)
+      def j :: Journal = console_run(m, ~config)
       def steps = for values(cnt = 0) (e in j):
-        if e[0] == #'choose
+        if e.edge_mode == #'choose
         | cnt + 1
         | cnt
       println(@str{Solved in @steps steps!})
@@ -143,21 +143,21 @@ module test:
     find_false_terminal(m, is_terminal_node) ~is #false
     find_auto_conflict(m) ~is #false
     find_counterexample(m, invariant) ~is #false
-    find_witness(m, is_goal) ~is PairList[
-      PairList[#'auto, PairList["Clear!"]],
-      PairList[#'choose, PairList["Pour 5G -> 3G"]],
-      PairList[#'auto, PairList["Not yet"]],
-      PairList[#'choose, PairList["Fill 5G"]],
-      PairList[#'auto, PairList["Not yet"]],
-      PairList[#'choose, PairList["Pour 5G -> 3G"]],
-      PairList[#'auto, PairList["Not yet"]],
-      PairList[#'choose, PairList["Empty 3G"]],
-      PairList[#'auto, PairList["Not yet"]],
-      PairList[#'choose, PairList["Pour 5G -> 3G"]],
-      PairList[#'auto, PairList["Not yet"]],
-      PairList[#'choose, PairList["Empty 3G"]],
-      PairList[#'auto, PairList["Not yet"]],
-      PairList[#'choose, PairList["Fill 5G"]],
-      PairList[#'auto, PairList["Not yet"]],
-      PairList[#'choose, PairList["Fill 3G"]],
-    ]
+    find_witness(m, is_goal) ~is Journal(
+      JournalEntry(#'auto, "Clear!"),
+      JournalEntry(#'choose, "Pour 5G -> 3G"),
+      JournalEntry(#'auto, "Not yet"),
+      JournalEntry(#'choose, "Fill 5G"),
+      JournalEntry(#'auto, "Not yet"),
+      JournalEntry(#'choose, "Pour 5G -> 3G"),
+      JournalEntry(#'auto, "Not yet"),
+      JournalEntry(#'choose, "Empty 3G"),
+      JournalEntry(#'auto, "Not yet"),
+      JournalEntry(#'choose, "Pour 5G -> 3G"),
+      JournalEntry(#'auto, "Not yet"),
+      JournalEntry(#'choose, "Empty 3G"),
+      JournalEntry(#'auto, "Not yet"),
+      JournalEntry(#'choose, "Fill 5G"),
+      JournalEntry(#'auto, "Not yet"),
+      JournalEntry(#'choose, "Fill 3G"),
+    )
