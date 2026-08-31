@@ -2,6 +2,7 @@
 
 import lib("graph-executor/main.rkt") as main
 import lib("graph-executor/graph.rkt") as g
+import lib("graph-executor/executor/console.rkt") as console
 
 import:
   rhombus/meta:
@@ -35,10 +36,15 @@ fun checker_prompt_config(~string_values = main.#{default-checker-prompt-string-
                                 ~#{between-values}: between_values,
                                 ~#{random-values}: random_values)
 
-fun console_config(~commands: commands :: Sequence = main.#{default-console-commands},
+annot.macro 'ConsoleCommand':
+  annot_meta.pack_predicate(
+    'console.#{console-command?}'
+  )
+
+fun console_config(~commands: commands :: List.of(ConsoleCommand) || PairList.of(ConsoleCommand) = main.#{default-console-commands},
                    ~trace_display = #'show,
                    ~chooser = main.#{default-console-chooser}):
-  main.#{console-config}(~commands: for PairList (cmd: commands): PairList(&cmd),
+  main.#{console-config}(~commands: PairList[& commands],
                          ~#{trace-display}: trace_display,
                          ~chooser)
 
@@ -128,3 +134,7 @@ export:
     main.#{default-dot-node-label-config} as default_dot_node_label_config
     main.#{default-dot-edge-node-label-config} as default_dot_edge_node_label_config
     main.#{dot-edge-option} as dot_edge_option
+    main.#{transform-console-command} as transform_console_command
+    main.#{action-console-command} as action_console_command
+    main.#{restore-console-command} as restore_console_command
+    main.#{quit-console-command} as quit_console_command

@@ -118,7 +118,7 @@ module main:
       def config = dot_config(~global)
       render_dot(m, ~config)
   | #'console:
-      def commands = [[#'quit, #'q, "Quit"]]
+      def commands = [quit_console_command(#'q, "Quit")]
       def config = console_config(~commands, ~trace_display)
       console_run(m, ~config)
       #void
