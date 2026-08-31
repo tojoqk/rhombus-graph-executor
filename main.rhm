@@ -43,7 +43,7 @@ fun console_config(~commands: commands :: Sequence = main.#{default-console-comm
                          ~chooser)
 
 fun make_graph(name, ~parent_name = #false, ~desc = #false, ~edges):
-  main.#{make-graph}(name, ~#{parent-name}: parent_name, ~desc, ~edges: PairList(&edges))
+  main.#{make-graph}(name, ~#{parent-name}: parent_name, ~desc, ~edges: PairList[& edges])
 
 fun dot_config(~global = #false, ~node = #false, ~node_label = #false, ~edge_node = #false, ~edge_node_label = #false, ~edge = #false):
   main.#{dot-config}(~global, ~node, ~#{node-label}: node_label, ~#{edge-node}: edge_node, ~#{edge-node-label}: edge_node_label, ~edge)
