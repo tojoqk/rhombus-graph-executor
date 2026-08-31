@@ -13,11 +13,11 @@ expr.macro 'code($e)':
 fun model(proc, ~default_node_prompt = "Choose:"):
   def f = fun():
     def values(gs, n, st) = proc()
-    values(PairList(&gs), n, st)
+    values(PairList[& gs], n, st)
   main.model(f, ~#{default-node-prompt}: default_node_prompt)
 
 fun make_edge(name, ~mode = #false, ~is_half = #false, ~from, ~to, ~desc = #false, ~when: w = #false, ~trans = #false, ~before = #false, ~after = #false, ~priority = #false, ~options = []):
-  main.#{make-edge}(name, ~mode, ~#{half?}: is_half, ~from, ~to, ~desc, ~when: w, ~trans, ~before, ~after, ~priority, ~options: PairList(&options))
+  main.#{make-edge}(name, ~mode, ~#{half?}: is_half, ~from, ~to, ~desc, ~when: w, ~trans, ~before, ~after, ~priority, ~options: PairList[& options])
 
 fun checker_config(~prompt = checker_prompt_config(), ~trace_display = #'hide):
   main.#{checker-config}(~prompt, ~#{trace-display}: trace_display)
@@ -75,14 +75,14 @@ annot.macro 'JournalEntry':
   )
 
 fun auto_journal_entry(edge_name, ~prompt_records = []):
-  main.#{auto-journal-entry}(edge_name, ~#{prompt-records}: PairList(&prompt_records))
+  main.#{auto-journal-entry}(edge_name, ~#{prompt-records}: PairList[& prompt_records])
 
 fun choose_journal_entry(edge_name, ~edge_attributes = [], ~prompt_records = []):
-  main.#{choose-journal-entry}(edge_name, ~#{edge-attributes}: PairList(&edge_attributes), ~#{prompt-records}: PairList(&prompt_records))
+  main.#{choose-journal-entry}(edge_name, ~#{edge-attributes}: PairList[& edge_attributes], ~#{prompt-records}: PairList[& prompt_records])
 
 annot Journal = PairList.of(JournalEntry)
 fun Journal(&entries :: List.of(JournalEntry)):
-  PairList(&List.reverse(entries))
+  PairList[& List.reverse(entries)]
 
 export:
   NodeInfo node_info_dot_provider
