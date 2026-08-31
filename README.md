@@ -128,7 +128,7 @@ module main:
       def config = dot_config(~global)
       render_dot(m, ~config)
   | #'console:
-      def commands = [[#'quit, #'q, "Quit"]]
+      def commands = [quit_console_command(#'q, "Quit")]
       def config = console_config(~commands, ~trace_display)
       console_run(m, ~config)
       #void
@@ -146,30 +146,33 @@ module test:
   def m = make_model(3, 5, 4)
   fun is_terminal_node(x :: NodeInfo): x.type == #'terminal
   def invariant = fun (_, JugState(~left: l, ~right: r)): 0 <= l && l <= 3 && 0 <= r && r <= 5
-  def is_goal = fun (n, _): is_terminal_node(n)
+  fun shortest_path(m):
+    recur loop(depth = 0):
+      find_witness(
+        m, fun (n, _): is_terminal_node(n),
+        ~bound: depth,
+        ~bounded: fun (): loop(depth + 1),
+      )
+
   check:
     find_livelock(m) ~is #false
     find_deadlock(m, is_terminal_node) ~is #false
     find_false_terminal(m, is_terminal_node) ~is #false
     find_auto_conflict(m) ~is #false
     find_counterexample(m, invariant) ~is #false
-    find_witness(m, is_goal) ~is Journal(
-      JournalEntry(#'auto, "Clear!"),
-      JournalEntry(#'choose, "Pour 5G -> 3G"),
-      JournalEntry(#'auto, "Not yet"),
-      JournalEntry(#'choose, "Fill 5G"),
-      JournalEntry(#'auto, "Not yet"),
-      JournalEntry(#'choose, "Pour 5G -> 3G"),
-      JournalEntry(#'auto, "Not yet"),
-      JournalEntry(#'choose, "Empty 3G"),
-      JournalEntry(#'auto, "Not yet"),
-      JournalEntry(#'choose, "Pour 5G -> 3G"),
-      JournalEntry(#'auto, "Not yet"),
-      JournalEntry(#'choose, "Empty 3G"),
-      JournalEntry(#'auto, "Not yet"),
-      JournalEntry(#'choose, "Fill 5G"),
-      JournalEntry(#'auto, "Not yet"),
-      JournalEntry(#'choose, "Fill 3G"),
+    shortest_path(m) ~is Journal(
+      choose_journal_entry("Fill 5G"),
+      auto_journal_entry("Not yet"),
+      choose_journal_entry("Pour 5G -> 3G"),
+      auto_journal_entry("Not yet"),
+      choose_journal_entry("Empty 3G"),
+      auto_journal_entry("Not yet"),
+      choose_journal_entry("Pour 5G -> 3G"),
+      auto_journal_entry("Not yet"),
+      choose_journal_entry("Fill 5G"),
+      auto_journal_entry("Not yet"),
+      choose_journal_entry("Pour 5G -> 3G"),
+      auto_journal_entry("Clear!"),
     )
 ```
 
