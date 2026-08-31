@@ -81,7 +81,8 @@ fun choose_journal_entry(edge_name, ~edge_attributes = [], ~prompt_records = [])
   main.#{choose-journal-entry}(edge_name, ~#{edge-attributes}: PairList(&edge_attributes), ~#{prompt-records}: PairList(&prompt_records))
 
 annot Journal = PairList.of(JournalEntry)
-def Journal = PairList
+fun Journal(&entries :: List.of(JournalEntry)):
+  PairList(&List.reverse(entries))
 
 export:
   NodeInfo node_info_dot_provider
