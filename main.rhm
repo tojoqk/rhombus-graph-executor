@@ -74,8 +74,11 @@ annot.macro 'JournalEntry':
     '(($statinfo_meta.dot_provider_key, journal_entry_dot_provider))'
   )
 
-fun JournalEntry(edge_mode, edge_name, ~edge_attributes = [], ~prompt_records = []):
-  PairList[edge_mode, PairList[edge_name, &edge_attributes], &prompt_records]
+fun auto_journal_entry(edge_name, ~prompt_records = []):
+  main.#{auto-journal-entry}(edge_name, ~#{prompt-records}: PairList(&prompt_records))
+
+fun choose_journal_entry(edge_name, ~edge_attributes = [], ~prompt_records = []):
+  main.#{choose-journal-entry}(edge_name, ~#{edge-attributes}: PairList(&edge_attributes), ~#{prompt-records}: PairList(&prompt_records))
 
 annot Journal = PairList.of(JournalEntry)
 def Journal = PairList
@@ -83,6 +86,7 @@ def Journal = PairList
 export:
   NodeInfo node_info_dot_provider
   Journal JournalEntry journal_entry_dot_provider
+  auto_journal_entry choose_journal_entry
 
   code model make_edge make_graph checker_config checker_prompt_config console_config dot_config
 
