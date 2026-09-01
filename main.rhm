@@ -2,6 +2,7 @@
 
 import lib("graph-executor/main.rkt") as main
 import lib("graph-executor/graph.rkt") as g
+import lib("graph-executor/model.rkt") as m
 import lib("graph-executor/executor/console.rkt") as console
 
 import:
@@ -11,14 +12,61 @@ import:
 expr.macro 'code($e)':
   'g.#{make-code}(g.#{code-text}($(e.to_source_string())), $e)'
 
-fun model(proc, ~default_node_prompt = "Choose:"):
-  def f = fun():
-    def values(gs, n, st) = proc()
-    values(PairList[& gs], n, st)
-  main.model(f, ~#{default-node-prompt}: default_node_prompt)
+annot.macro 'Graph':
+  annot_meta.pack_predicate(
+    'g.#{graph?}'
+  )
 
-fun make_edge(name, ~mode = #false, ~is_half = #false, ~from, ~to, ~desc = #false, ~when: w = #false, ~trans = #false, ~before = #false, ~after = #false, ~priority = #false, ~options = []):
+annot.macro 'OpenGraph':
+  annot_meta.pack_predicate(
+    'g.#{open-graph?}'
+  )
+
+annot.macro 'Node':
+  annot_meta.pack_predicate(
+    'g.#{node?}'
+  )
+
+annot.macro 'Edge':
+  annot_meta.pack_predicate(
+    'g.#{edge?}'
+  )
+
+annot.macro 'Bridge':
+  annot_meta.pack_predicate(
+    'g.#{bridge?}'
+  )
+
+annot.macro 'Model':
+  annot_meta.pack_predicate(
+    'm.#{model?}'
+  )
+
+fun model(proc :: () -> values(List.of(Graph), Node, Any),
+          ~default_node_prompt: default_node_prompt :: String = "Choose:") :: Model:
+  main.model(
+    ~#{default-node-prompt}: default_node_prompt,
+    fun ():
+      def values(gs, n, st) = proc()
+      values(PairList[& gs], n, st),
+  )
+
+fun node_maker(graph_name):
+  def make_node = g.#{node-maker}(graph_name)
+  fun (name, ~type: type, ~tags: tags = [], ~desc: desc = #false, ~trans: trans = #false, ~before: before = #false, ~after: after = #false, ~prompt: prompt = #false, ~options: options = []) :: Node:
+    make_node(name, ~type, ~tags: PairList[& tags], ~desc, ~trans, ~before, ~after, ~prompt, ~options: PairList[& options])
+
+fun make_edge(name, ~mode = #false, ~is_half = #false, ~from, ~to, ~desc = #false, ~when: w = #false, ~trans = #false, ~before = #false, ~after = #false, ~priority = #false, ~options = []) :: Edge:
   main.#{make-edge}(name, ~mode, ~#{half?}: is_half, ~from, ~to, ~desc, ~when: w, ~trans, ~before, ~after, ~priority, ~options: PairList[& options])
+
+fun make_bridge(name, ~mode = #false, ~is_half = #false, ~from, ~to, ~desc = #false, ~when: w = #false, ~trans = #false, ~before = #false, ~after = #false, ~priority = #false, ~options = []) :: Bridge:
+  main.#{make-bridge}(name, ~mode, ~#{half?}: is_half, ~from, ~to, ~desc, ~when: w, ~trans, ~before, ~after, ~priority, ~options: PairList[& options])
+
+macro 'any_node($annot)':
+  'g.#{any-node/any}(fun (x): x is_a $annot)'
+
+macro 'any_graph($annot)':
+  'g.#{any-graph/any}(fun (x): x is_a $annot)'
 
 fun checker_config(~prompt = checker_prompt_config(), ~trace_display = #'hide):
   main.#{checker-config}(~prompt, ~#{trace-display}: trace_display)
@@ -50,6 +98,9 @@ fun console_config(~commands: commands :: List.of(ConsoleCommand) || PairList.of
 
 fun make_graph(name, ~parent_name = #false, ~desc = #false, ~edges):
   main.#{make-graph}(name, ~#{parent-name}: parent_name, ~desc, ~edges: PairList[& edges])
+
+fun make_open_graph(name, ~parent_name = #false, ~desc = #false, ~edges, ~bridges):
+  main.#{make-open-graph}(name, ~#{parent-name}: parent_name, ~desc, ~edges: PairList[& edges], ~bridges: PairList[& bridges])
 
 fun dot_config(~global = #false, ~node = #false, ~node_label = #false, ~edge_node = #false, ~edge_node_label = #false, ~edge = #false):
   main.#{dot-config}(~global, ~node, ~#{node-label}: node_label, ~#{edge-node}: edge_node, ~#{edge-node-label}: edge_node_label, ~edge)
@@ -91,11 +142,13 @@ fun Journal(&entries :: List.of(JournalEntry)):
   PairList[& List.reverse(entries)]
 
 export:
+  Node Edge Bridge Graph OpenGraph
   NodeInfo node_info_dot_provider
   Journal JournalEntry journal_entry_dot_provider
   auto_journal_entry choose_journal_entry
 
-  code model make_edge make_graph checker_config checker_prompt_config console_config dot_config
+  code model node_maker make_edge make_bridge make_graph make_open_graph checker_config checker_prompt_config console_config dot_config
+  any_node any_graph
 
   rename:
     main.message as message
@@ -106,7 +159,6 @@ export:
     main.#{prompt-positive-integer} as prompt_positive_integer
     main.#{prompt-between} as prompt_between
     main.#{prompt-random} as prompt_random
-    main.#{node-maker} as node_maker
     main.#{apply-journal} as apply_journal
     main.#{weight-edge-option} as weight_edge_option
     main.#{default-console-commands} as default_console_commands
