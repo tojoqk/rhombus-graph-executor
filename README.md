@@ -96,7 +96,7 @@ fun jug_graph(g :: String, left_cap :: Nat, right_cap :: Nat, target :: Nat):
 
   values(make_graph(g, ~edges), playing)
 
-fun make_model(left_cap, right_cap, target):
+fun make_model(left_cap, right_cap, target) :: Model:
   model(
     fun ():
       def values(graph, node_init) = jug_graph("Water Jug Puzzle", left_cap, right_cap, target)
@@ -126,16 +126,16 @@ module main:
   | #'dot:
       def global = dot_global_config(~rankdir: #'LR)
       def config = dot_config(~global)
-      render_dot(m, ~config)
+      m.render_dot(~config)
   | #'console:
       def commands = [quit_console_command(#'q, "Quit")]
       def config = console_config(~commands, ~trace_display)
-      console_run(m, ~config)
+      m.console_run(~config)
       #void
   | #'random:
       def chooser = fun (_): #'random
       def config = console_config(~chooser, ~trace_display)
-      def j :: Journal = console_run(m, ~config)
+      def j :: Journal = m.console_run(~config)
       def steps = for values(cnt = 0) (e in j):
         if e.edge_mode == #'choose
         | cnt + 1
@@ -143,24 +143,25 @@ module main:
       println(@str{Solved in @steps steps!})
 
 module test:
-  def m = make_model(3, 5, 4)
+  veneer TestModel(this :: Model):
+    method shortest_path(predicate):
+      recur loop(depth = 0):
+        this.find_witness(
+          predicate,
+          ~bound: depth,
+          ~bounded: fun (): loop(depth + 1),
+        )
+  def m :: TestModel = make_model(3, 5, 4)
   fun is_terminal_node(x :: NodeInfo): x.type == #'terminal
-  def invariant = fun (_, JugState(~left: l, ~right: r)): 0 <= l && l <= 3 && 0 <= r && r <= 5
-  fun shortest_path(m):
-    recur loop(depth = 0):
-      find_witness(
-        m, fun (n, _): is_terminal_node(n),
-        ~bound: depth,
-        ~bounded: fun (): loop(depth + 1),
-      )
+  fun invariant(_, JugState(~left: l, ~right: r)): 0 <= l && l <= 3 && 0 <= r && r <= 5
 
   check:
-    find_livelock(m) ~is #false
-    find_deadlock(m, is_terminal_node) ~is #false
-    find_false_terminal(m, is_terminal_node) ~is #false
-    find_auto_conflict(m) ~is #false
-    find_counterexample(m, invariant) ~is #false
-    shortest_path(m) ~is Journal(
+    m.find_livelock() ~is #false
+    m.find_deadlock(is_terminal_node) ~is #false
+    m.find_false_terminal(is_terminal_node) ~is #false
+    m.find_auto_conflict() ~is #false
+    m.find_counterexample(invariant) ~is #false
+    m.shortest_path(fun (n, _): is_terminal_node(n)) ~is Journal(
       choose_journal_entry("Fill 5G"),
       auto_journal_entry("Not yet"),
       choose_journal_entry("Pour 5G -> 3G"),
