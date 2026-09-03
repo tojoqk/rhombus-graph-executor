@@ -91,31 +91,35 @@ fun make_open_graph(name, ~parent_name = #false, ~desc = #false, ~edges, ~bridge
 fun dot_config(~global = #false, ~node = #false, ~node_label = #false, ~edge_node = #false, ~edge_node_label = #false, ~edge = #false):
   main.#{dot-config}(~global, ~node, ~#{node-label}: node_label, ~#{edge-node}: edge_node, ~#{edge-node-label}: edge_node_label, ~edge)
 
-dot.macro 'node_info_dot_provider $left . $right':
-  match right
-  | 'name': 'g.#{node-info-name}($left)'
-  | 'type': 'g.#{node-info-type}($left)'
-  | 'tags': 'g.#{node-info-tags}($left)'
-  | 'desc': 'g.#{node-info-desc}($left)'
-
-annot.macro 'NodeInfo':
+annot.macro 'RawNodeInfo':
   annot_meta.pack_predicate(
     'g.#{node-info?}',
-    '(($statinfo_meta.dot_provider_key, node_info_dot_provider))'
   )
 
-dot.macro 'journal_entry_dot_provider $left . $right':
-  match right
-  | 'edge_mode': 'main.#{journal-entry-edge-mode}($left)'
-  | 'edge_name': 'main.#{journal-entry-edge-name}($left)'
-  | 'edge_attributes': 'main.#{journal-entry-edge-attributes}($left)'
-  | 'prompt_records': 'main.#{journal-entry-prompt-records}($left)'
+veneer NodeInfo(this :: RawNodeInfo):
+  property name:
+    g.#{node-info-name}(this)
+  property type:
+    g.#{node-info-type}(this)
+  property tags:
+    g.#{node-info-tags}(this)
+  property desc:
+    g.#{node-info-desc}(this)
 
-annot.macro 'JournalEntry':
+annot.macro 'RawJournalEntry':
   annot_meta.pack_predicate(
     'main.#{journal-entry?}',
-    '(($statinfo_meta.dot_provider_key, journal_entry_dot_provider))'
   )
+
+veneer JournalEntry(this :: RawJournalEntry):
+  property edge_mode:
+    main.#{journal-entry-edge-mode}(this)
+  property edge_name:
+    main.#{journal-entry-edge-name}(this)
+  property edge_attributes:
+    main.#{journal-entry-edge-attributes}(this)
+  property prompt_records:
+    main.#{journal-entry-prompt-records}(this)
 
 fun auto_journal_entry(edge_name, ~prompt_records = []):
   main.#{auto-journal-entry}(edge_name, ~#{prompt-records}: PairList[& prompt_records])
@@ -177,8 +181,8 @@ fun model(proc :: () -> values(List.of(Graph), Node, Any),
 
 export:
   Node Edge Bridge Graph OpenGraph
-  NodeInfo node_info_dot_provider
-  Journal JournalEntry journal_entry_dot_provider
+  NodeInfo
+  Journal JournalEntry
   auto_journal_entry choose_journal_entry
   Model
 
