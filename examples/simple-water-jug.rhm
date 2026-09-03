@@ -125,7 +125,7 @@ module main:
   | #'random:
       def chooser = fun (_): #'random
       def config = console_config(~chooser, ~trace_display)
-      def j :: Journal = console_run(m, ~config)
+      def j :: Journal = m.console_run(~config)
       def steps = for values(cnt = 0) (e in j):
         if e.edge_mode == #'choose
         | cnt + 1
