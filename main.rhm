@@ -37,20 +37,6 @@ annot.macro 'Bridge':
     'g.#{bridge?}'
   )
 
-annot.macro 'Model':
-  annot_meta.pack_predicate(
-    'm.#{model?}'
-  )
-
-fun model(proc :: () -> values(List.of(Graph), Node, Any),
-          ~default_node_prompt: default_node_prompt :: String = "Choose:") :: Model:
-  main.model(
-    ~#{default-node-prompt}: default_node_prompt,
-    fun ():
-      def values(gs, n, st) = proc()
-      values(PairList[& gs], n, st),
-  )
-
 fun node_maker(graph_name):
   def make_node = g.#{node-maker}(graph_name)
   fun (name, ~type: type, ~tags: tags = [], ~desc: desc = #false, ~trans: trans = #false, ~before: before = #false, ~after: after = #false, ~prompt: prompt = #false, ~options: options = []) :: Node:
@@ -141,11 +127,60 @@ annot Journal = PairList.of(JournalEntry)
 fun Journal(&entries :: List.of(JournalEntry)):
   PairList[& List.reverse(entries)]
 
+annot.macro 'RawModel':
+  annot_meta.pack_predicate(
+    'm.#{model?}',
+  )
+
+veneer Model(this :: RawModel):
+  method apply_journal(journal :: Journal) :: values(NodeInfo, Any):
+    main.#{apply-journal}(this, journal)
+  method console_run(~journal: journal :: Journal = Journal(), ~config: config = main.#{console-config}()) :: Journal:
+    main.#{console-run}(this, ~journal, ~config)
+  method render_dot(~journal: journal :: Journal = Journal(), ~port: port :: Port.Output = stdout, ~config: config = main.#{dot-config}()):
+    main.#{render-dot}(this, ~journal, ~port, ~config)
+  method find_witness(predicate :: (NodeInfo, Any) -> Any,
+                      ~bound: bound :: Nat || False = #false,
+                      ~bounded: bounded :: () -> (False || Journal) = fun (): #false,
+                      ~config: config = main.#{checker-config}()):
+    main.#{find-witness}(this, predicate, ~bound, ~bounded, ~config)
+  method find_counterexample(invariant :: (NodeInfo, Any) -> Any,
+                             ~bound: bound :: Nat || False = #false,
+                             ~bounded: bounded :: () -> (False || Journal) = fun (): #false,
+                             ~config: config = main.#{checker-config}()):
+    main.#{find-counterexample}(this, invariant, ~bound, ~bounded, ~config)
+  method find_deadlock(is_terminal_node :: NodeInfo -> Any,
+                       ~bound: bound :: Nat || False = #false,
+                       ~bounded: bounded :: () -> (False || Journal) = fun (): #false,
+                       ~config: config = main.#{checker-config}()):
+    main.#{find-deadlock}(this, is_terminal_node, ~bound, ~bounded, ~config)    
+  method find_false_terminal(is_terminal_node :: NodeInfo -> Any,
+                             ~bound: bound :: Nat || False = #false,
+                             ~bounded: bounded :: () -> (False || Journal) = fun (): #false,
+                             ~config: config = main.#{checker-config}()):
+    main.#{find-false-terminal}(this, is_terminal_node, ~bound, ~bounded, ~config)
+  method find_livelock(~config: config = main.#{checker-config}()) :: False || Journal:
+    main.#{find-livelock}(this, ~config)
+  method find_auto_conflict(~bound: bound :: Nat || False = #false,
+                            ~bounded: bounded :: () -> (False || Journal) = fun (): #false,
+                            ~config: config = main.#{checker-config}()):
+    main.#{find-auto-conflict}(this, ~bound, ~bounded, ~config)
+
+fun model(proc :: () -> values(List.of(Graph), Node, Any),
+          ~default_node_prompt: default_node_prompt :: String = "Choose:") :: Model:
+  main.model(
+    ~#{default-node-prompt}: default_node_prompt,
+    fun ():
+      def values(gs, n, st) = proc()
+      values(PairList[& gs], n, st),
+  )
+
 export:
   Node Edge Bridge Graph OpenGraph
   NodeInfo node_info_dot_provider
   Journal JournalEntry journal_entry_dot_provider
   auto_journal_entry choose_journal_entry
+  Model
 
   code model node_maker make_edge make_bridge make_graph make_open_graph checker_config checker_prompt_config console_config dot_config
   any_node any_graph
@@ -159,24 +194,15 @@ export:
     main.#{prompt-positive-integer} as prompt_positive_integer
     main.#{prompt-between} as prompt_between
     main.#{prompt-random} as prompt_random
-    main.#{apply-journal} as apply_journal
     main.#{weight-edge-option} as weight_edge_option
     main.#{default-console-commands} as default_console_commands
     main.#{default-console-chooser} as default_console_chooser
-    main.#{console-run} as console_run
-    main.#{find-counterexample} as find_counterexample
-    main.#{find-witness} as find_witness
-    main.#{find-deadlock} as find_deadlock
-    main.#{find-false-terminal} as  find_false_terminal
-    main.#{find-auto-conflict} as find_auto_conflict
-    main.#{find-livelock} as find_livelock
     main.#{default-checker-prompt-string-values} as default_checker_prompt_string_values
     main.#{default-checker-prompt-integer-values} as default_checker_prompt_integer_values
     main.#{default-checker-prompt-natural-values} as default_checker_prompt_natural_values
     main.#{default-checker-prompt-positive-integer-values} as default_checker_prompt_positive_integer_values
     main.#{default-checker-prompt-between-values} as default_checker_prompt_between_values
     main.#{default-checker-prompt-random-values} as default_checker_prompt_random_values
-    main.#{render-dot} as render_dot
     main.#{dot-global-config} as dot_global_config
     main.#{dot-node-config} as dot_node_config
     main.#{dot-edge-config} as dot_edge_config
