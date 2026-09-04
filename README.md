@@ -177,6 +177,11 @@ module test:
     )
 ```
 
+## Limitations
+
+- **Performance**: In the current implementation, model checking in Rhombus is significantly slower compared to the native Typed Racket implementation. If execution speed is critical for your use case, please consider using [graph-executor](https://github.com/tojoqk/graph-executor) directly.
+- **Experimental API**: This library is pre-1.0 (`v0.x`). The API and specifications are subject to change without notice.
+
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE) for details.
