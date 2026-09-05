@@ -135,8 +135,8 @@ annot.macro 'RawModel':
   )
 
 veneer Model(this :: RawModel):
-  method apply_journal(journal :: Journal) :: values(NodeInfo, Any):
-    main.#{apply-journal}(this, journal)
+  method replay(journal :: Journal) :: values(NodeInfo, Any):
+    main.#{replay}(this, journal)
   method console_run(~journal: journal :: Journal = Journal(), ~config: config = main.#{console-config}()) :: Journal:
     main.#{console-run}(this, ~journal, ~config)
   method render_dot(~journal: journal :: Journal = Journal(), ~port: port :: Port.Output = stdout, ~config: config = main.#{dot-config}()):
