@@ -151,17 +151,17 @@ module test:
     m.find_false_terminal(is_terminal_node) ~is #false
     m.find_auto_conflict() ~is #false
     m.find_counterexample(invariant) ~is #false
-    m.shortest_path(fun (n, _): is_terminal_node(n)) ~is Journal(
-      choose_journal_entry("Fill 5G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Pour 5G -> 3G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Empty 3G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Pour 5G -> 3G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Fill 5G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Pour 5G -> 3G"),
-      auto_journal_entry("Clear!"),
+    m.shortest_path(fun (n, _): is_terminal_node(n)) ~is PairList(
+      journal_entry(#'auto, "Clear!"),
+      journal_entry(#'choose, "Pour 5G -> 3G"),
+      journal_entry(#'auto, "Not yet"),
+      journal_entry(#'choose, "Fill 5G"),
+      journal_entry(#'auto, "Not yet"),
+      journal_entry(#'choose, "Pour 5G -> 3G"),
+      journal_entry(#'auto, "Not yet"),
+      journal_entry(#'choose, "Empty 3G"),
+      journal_entry(#'auto, "Not yet"),
+      journal_entry(#'choose, "Pour 5G -> 3G"),
+      journal_entry(#'auto, "Not yet"),
+      journal_entry(#'choose, "Fill 5G"),
     )
