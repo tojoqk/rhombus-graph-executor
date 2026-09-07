@@ -122,8 +122,11 @@ veneer JournalEntry(this :: RawJournalEntry):
   property prompt_records:
     main.#{journal-entry-prompt-records}(this)
 
-fun journal_entry(edge_mode, edge_name, ~edge_extra = #false, ~prompt_records = []):
-  main.#{journal-entry}(edge_mode, edge_name, ~#{edge-extra}: edge_extra, ~#{prompt-records}: PairList[& prompt_records])
+fun auto(edge_name, ~prompt_records = []):
+  main.#{auto}(edge_name, ~#{prompt-records}: PairList[& prompt_records])
+
+fun choice(edge_name, ~edge_extra = #false, ~prompt_records = []):
+  main.#{choice}(edge_name, ~#{edge-extra}: edge_extra, ~#{prompt-records}: PairList[& prompt_records])
 
 annot Journal = PairList.of(JournalEntry)
 fun Journal(& entries :: List.of(JournalEntry)):
@@ -180,7 +183,7 @@ fun model(proc :: () -> values(List.of(Graph), Node, Any),
 export:
   Node Edge Bridge Graph OpenGraph
   NodeInfo
-  Journal JournalEntry journal_entry
+  Journal JournalEntry auto choice
   Model
 
   code model node_maker make_edge make_bridge make_graph make_open_graph checker_config checker_prompt_config console_config dot_config
