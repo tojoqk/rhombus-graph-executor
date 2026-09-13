@@ -38,10 +38,24 @@ annot.macro 'Bridge':
     'g.#{bridge?}'
   )
 
-fun node_maker(graph_name):
-  def make_node = g.#{node-maker}(graph_name)
-  fun (name, ~type: type, ~tags: tags = [], ~desc: desc = #false, ~trans: trans = #false, ~before: before = #false, ~after: after = #false, ~prompt: prompt = #false, ~options: options = []) :: Node:
-    make_node(name, ~type, ~tags: PairList[& tags], ~desc, ~trans, ~before, ~after, ~prompt, ~options: PairList[& options])
+fun graph_maker(graph_name, ~parent_name: parent_name = #false):
+  def values(make_node, make_graph) = g.#{graph-maker}(graph_name, ~#{parent-name}: parent_name)
+  values(
+    fun (name, ~type: type, ~tags: tags = [], ~desc: desc = #false, ~trans: trans = #false, ~before: before = #false, ~after: after = #false, ~prompt: prompt = #false, ~options: options = []) :: Node:
+      make_node(name, ~type, ~tags: PairList[& tags], ~desc, ~trans, ~before, ~after, ~prompt, ~options: PairList[& options]),
+    fun(~edges: edges = []):
+      make_graph(~edges: PairList[& edges]),
+  )
+
+fun open_graph_maker(graph_name, ~parent_name: parent_name = #false):
+  def values(make_node, make_graph) = g.#{open-graph-maker}(graph_name, ~#{parent-name}: parent_name)
+  values(
+    fun (name, ~type: type, ~tags: tags = [], ~desc: desc = #false, ~trans: trans = #false, ~before: before = #false, ~after: after = #false, ~prompt: prompt = #false, ~options: options = []) :: Node:
+      make_node(name, ~type, ~tags: PairList[& tags], ~desc, ~trans, ~before, ~after, ~prompt, ~options: PairList[& options]),
+    fun(~edges: edges = [], ~bridges: bridges = []):
+      make_graph(~edges: PairList[& edges], ~bridges: PairList[& bridges]),
+  )
+
 
 fun make_edge(name, ~mode = #false, ~is_half = #false, ~from, ~to, ~desc = #false, ~when: w = #false, ~trans = #false, ~before = #false, ~after = #false, ~priority = #false, ~options = []) :: Edge:
   main.#{make-edge}(name, ~mode, ~#{half?}: is_half, ~from, ~to, ~desc, ~when: w, ~trans, ~before, ~after, ~priority, ~options: PairList[& options])
@@ -82,12 +96,6 @@ fun console_config(~commands: commands :: List.of(ConsoleCommand) || PairList.of
   main.#{console-config}(~commands: PairList[& commands],
                          ~#{trace-display}: trace_display,
                          ~chooser)
-
-fun make_graph(name, ~parent_name = #false, ~desc = #false, ~edges):
-  main.#{make-graph}(name, ~#{parent-name}: parent_name, ~desc, ~edges: PairList[& edges])
-
-fun make_open_graph(name, ~parent_name = #false, ~desc = #false, ~edges, ~bridges):
-  main.#{make-open-graph}(name, ~#{parent-name}: parent_name, ~desc, ~edges: PairList[& edges], ~bridges: PairList[& bridges])
 
 fun dot_config(~global = #false, ~node = #false, ~node_label = #false, ~edge_node = #false, ~edge_node_label = #false, ~edge = #false):
   main.#{dot-config}(~global, ~node, ~#{node-label}: node_label, ~#{edge-node}: edge_node, ~#{edge-node-label}: edge_node_label, ~edge)
@@ -186,7 +194,7 @@ export:
   Journal JournalEntry auto choice
   Model
 
-  code model node_maker make_edge make_bridge make_graph make_open_graph checker_config checker_prompt_config console_config dot_config
+  code model make_edge make_bridge graph_maker open_graph_maker checker_config checker_prompt_config console_config dot_config
   any_node any_graph
 
   rename:

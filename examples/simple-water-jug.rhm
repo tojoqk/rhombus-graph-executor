@@ -21,7 +21,7 @@ fun jug_graph(g :: String, left_cap :: Nat, right_cap :: Nat, target :: Nat):
            Current Status:
              [ @(left_cap)G Jug: @(left)/@(left_cap) | @(right_cap)G Jug: @(right)/@(right_cap) ]
            What will you do?}
-  def make_node = node_maker(g)
+  def values(make_node, make_graph) = graph_maker(g)
   def playing = make_node("Playing", ~type: #'puzzle, ~prompt: code(prompt_playing))
   def check_clear = make_node("Check Clear", ~type: #'check_clear)
   def cleared = make_node(
@@ -84,7 +84,7 @@ fun jug_graph(g :: String, left_cap :: Nat, right_cap :: Nat, target :: Nat):
     ),
   ]
 
-  values(make_graph(g, ~edges), playing)
+  values(make_graph(~edges), playing)
 
 fun make_model(left_cap, right_cap, target) :: Model:
   model(
