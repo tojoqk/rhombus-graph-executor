@@ -31,7 +31,7 @@ fun jug_graph(g :: String, left_cap :: Nat, right_cap :: Nat, target :: Nat):
            Current Status:
              [ @(left_cap)G Jug: @(left)/@(left_cap) | @(right_cap)G Jug: @(right)/@(right_cap) ]
            What will you do?}
-  def make_node = node_maker(g)
+  def values(make_node, make_graph) = graph_maker(g)
   def playing = make_node("Playing", ~type: #'puzzle, ~prompt: code(prompt_playing))
   def check_clear = make_node("Check Clear", ~type: #'check_clear)
   def cleared = make_node(
@@ -94,7 +94,7 @@ fun jug_graph(g :: String, left_cap :: Nat, right_cap :: Nat, target :: Nat):
     ),
   ]
 
-  values(make_graph(g, ~edges), playing)
+  values(make_graph(~edges), playing)
 
 fun make_model(left_cap, right_cap, target) :: Model:
   model(
@@ -137,7 +137,7 @@ module main:
       def config = console_config(~chooser, ~trace_display)
       def j :: Journal = m.console_run(~config)
       def steps = for values(cnt = 0) (e in j):
-        if e.edge_mode == #'choose
+        if e.edge_mode == #'choice
         | cnt + 1
         | cnt
       println(@str{Solved in @steps steps!})
@@ -161,19 +161,19 @@ module test:
     m.find_false_terminal(is_terminal_node) ~is #false
     m.find_auto_conflict() ~is #false
     m.find_counterexample(invariant) ~is #false
-    m.shortest_path(fun (n, _): is_terminal_node(n)) ~is Journal(
-      choose_journal_entry("Fill 5G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Pour 5G -> 3G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Empty 3G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Pour 5G -> 3G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Fill 5G"),
-      auto_journal_entry("Not yet"),
-      choose_journal_entry("Pour 5G -> 3G"),
-      auto_journal_entry("Clear!"),
+    m.shortest_path(fun (n, _): is_terminal_node(n)) ~is PairList(
+      auto("Clear!"),
+      choice("Pour 5G -> 3G"),
+      auto("Not yet"),
+      choice("Fill 5G"),
+      auto("Not yet"),
+      choice("Pour 5G -> 3G"),
+      auto("Not yet"),
+      choice("Empty 3G"),
+      auto("Not yet"),
+      choice("Pour 5G -> 3G"),
+      auto("Not yet"),
+      choice("Fill 5G"),
     )
 ```
 
