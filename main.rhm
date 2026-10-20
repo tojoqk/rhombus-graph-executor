@@ -162,16 +162,14 @@ veneer Model(this :: RawModel):
                              ~bounded: bounded :: () -> (False || Journal) = fun (): #false,
                              ~config: config = main.#{checker-config}()):
     main.#{find-counterexample}(this, invariant, ~bound, ~bounded, ~config)
-  method find_deadlock(is_terminal_node :: NodeInfo -> Any,
-                       ~bound: bound :: Nat || False = #false,
+  method find_deadlock(~bound: bound :: Nat || False = #false,
                        ~bounded: bounded :: () -> (False || Journal) = fun (): #false,
                        ~config: config = main.#{checker-config}()):
-    main.#{find-deadlock}(this, is_terminal_node, ~bound, ~bounded, ~config)
-  method find_false_terminal(is_terminal_node :: NodeInfo -> Any,
-                             ~bound: bound :: Nat || False = #false,
+    main.#{find-deadlock}(this, ~bound, ~bounded, ~config)
+  method find_false_terminal(~bound: bound :: Nat || False = #false,
                              ~bounded: bounded :: () -> (False || Journal) = fun (): #false,
                              ~config: config = main.#{checker-config}()):
-    main.#{find-false-terminal}(this, is_terminal_node, ~bound, ~bounded, ~config)
+    main.#{find-false-terminal}(this, ~bound, ~bounded, ~config)
   method find_livelock(~config: config = main.#{checker-config}()) :: False || Journal:
     main.#{find-livelock}(this, ~config)
   method find_auto_conflict(~bound: bound :: Nat || False = #false,
@@ -180,12 +178,14 @@ veneer Model(this :: RawModel):
     main.#{find-auto-conflict}(this, ~bound, ~bounded, ~config)
 
 fun model(proc :: () -> values(List.of(Graph), Node, Any),
+          terminal :: NodeInfo -> Any,
           ~default_node_prompt: default_node_prompt :: String = "Choose:") :: Model:
   main.model(
     ~#{default-node-prompt}: default_node_prompt,
     fun ():
       def values(gs, n, st) = proc()
       values(PairList[& gs], n, st),
+    terminal,
   )
 
 export:
